@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Gps</string>
+    <string name="dialog_yes">Да</string>
+    <string name="dialog_no">Нет</string>
+    <string name="home">Главная</string>
+    <string name="settings">Настройки</string>
+    <string name="location">Местоположение</string>
+    <string name="tracks">Маршрут</string>
+    <string name="update_time">Время обновления</string>
+    <string name="update_time_summary">Время обновление пути</string>
+    <string name="color_track">Цвет прорисовки пути</string>
+    <string name="color_summary">Выбрать цвет прорисовки пути.</string>
+    <string name="dialog_title">Включение GPS</string>
+    <string name="dialog_message">Вы хотите вкючить GPS</string>
+
+
+    <string name="zoom_out">-</string>
+    <string name="zoom_in">+</string>
+    <string name="time_text">Время:</string>
+    <string name="speed_text">Скорость:</string>
+    <string name="play">play</string>
+    <string name="center">center</string>
+    <string name="average_speed_text">Средняя скорость:</string>
+    <string name="distance_text">Расстояние:</string>
+</resources>

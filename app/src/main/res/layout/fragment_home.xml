@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/homeFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:backgroundTint="@color/white">
+
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+    </org.osmdroid.views.MapView>
+
+    <TextView
+        android:id="@+id/timeTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="#8CFFFFFF"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="@string/time_text"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/averageSpeedTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#8CFFFFFF"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="@string/average_speed_text"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@id/timeTV"
+        app:layout_constraintTop_toBottomOf="@id/timeTV" />
+
+    <TextView
+        android:id="@+id/speedTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#8CFFFFFF"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="@string/speed_text"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@id/averageSpeedTV"
+        app:layout_constraintTop_toBottomOf="@id/averageSpeedTV" />
+
+    <TextView
+        android:id="@+id/distanceTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#8CFFFFFF"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="@string/distance_text"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@id/speedTV"
+        app:layout_constraintTop_toBottomOf="@id/speedTV" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/centerFA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="#FFFFFF"
+        android:backgroundTint="@color/white"
+        android:clickable="true"
+        android:contentDescription="@string/center"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_location" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/startStopFA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="#FFFFFF"
+        android:backgroundTint="@color/white"
+        android:clickable="true"
+        android:contentDescription="@string/play"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/centerFA"
+        app:srcCompat="@drawable/ic_play" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/zoomInButton"
+        android:elevation="12dp"
+        android:layout_width="45dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:text="@string/zoom_in"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toTopOf="@+id/zoomOutButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:elevation="12dp"
+        android:id="@+id/zoomOutButton"
+        android:layout_width="45dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="100dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:textSize="34sp"
+        android:text="@string/zoom_out"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
