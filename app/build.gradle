@@ -54,8 +54,8 @@ dependencies {
     implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.4.7'
     //Preference
     implementation "androidx.preference:preference-ktx:1.2.0"
-    //map
-    implementation 'org.osmdroid:osmdroid-android:6.1.10'
+//map
+    implementation 'org.osmdroid:osmdroid-android:6.1.16'
     implementation 'com.github.MKergall:osmbonuspack:6.7.0'
     //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'

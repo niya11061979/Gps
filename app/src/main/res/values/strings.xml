@@ -20,6 +20,6 @@
     <string name="speed_text">Скорость:</string>
     <string name="play">play</string>
     <string name="center">center</string>
-    <string name="average_speed_text">Средняя скорость:</string>
+    <string name="aSpeed_text">Средняя скорость:</string>
     <string name="distance_text">Расстояние:</string>
 </resources>

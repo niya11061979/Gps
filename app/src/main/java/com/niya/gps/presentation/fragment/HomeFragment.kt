@@ -5,24 +5,26 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
-
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.niya.gps.R
 import com.niya.gps.data.LocationModel
 import com.niya.gps.data.LocationService
 import com.niya.gps.data.LocationService.Companion.LOC_MODEL_INTENT
+import com.niya.gps.data.TimeUtils
 import com.niya.gps.databinding.FragmentHomeBinding
 import com.niya.gps.presentation.model.HomeViewModel
 import com.niya.gps.utils.*
@@ -34,10 +36,14 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import java.util.*
 
+
 class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
+    var startTime = 0L
+    var timer: Timer? = null
     private var isServiceRunning = false
     private var pl: Polyline? = null
     private var isFirstStar = true
+    val timeData = MutableLiveData<String>()
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,8 +78,8 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
                     "${String.format("%.1f", it.distance)}м"
             val speed = resources.getString(R.string.speed_text) +
                     "${String.format("%.1f", 3.6 * it.speed)} км/ч"
-            val aSpeed = resources.getString(R.string.average_speed_text) +
-                    "${averageSpeed(it.distance)} км/ч"
+            val aSpeed =
+                resources.getString(R.string.aSpeed_text) + "${averageSpeed(it.distance)} км/ч"
             speedTV.text = speed
             distanceTV.text = distance
             averageSpeedTV.text = aSpeed
@@ -82,7 +88,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
     }
 
     private fun updateTime() {
-        viewModel.timeDataLD.observe(viewLifecycleOwner) {
+        timeData.observe(viewLifecycleOwner) {
             binding.timeTV.text = "${resources.getString(R.string.time_text)}: $it"
         }
     }
@@ -92,7 +98,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         isServiceRunning = LocationService.isStart
         if (isServiceRunning) {
             binding.startStopFA.setImageResource(R.drawable.ic_stop)
-            viewModel.startTimer(activity)
+            startTimer()
         }
     }
 
@@ -123,7 +129,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         if (isServiceRunning) {
             activity?.stopService(Intent(activity, LocationService::class.java))
             binding.startStopFA.setImageResource(R.drawable.ic_play)
-            viewModel.timer?.cancel()
+            timer?.cancel()
         } else {
             startLocService()
             binding.startStopFA.setImageResource(R.drawable.ic_stop)
@@ -138,32 +144,36 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
             activity?.startService(Intent(activity, LocationService::class.java))
         }
         LocationService.startTime = System.currentTimeMillis()
-        viewModel.startTimer(activity)
+        startTimer()
     }
 
 
     private fun settingsOsm() {
         Configuration.getInstance().load(
-            activity as AppCompatActivity,
-            activity?.getSharedPreferences(OSM_PREF, Context.MODE_PRIVATE)
+            requireContext(),
+            requireActivity().getSharedPreferences(OSM_PREF, Context.MODE_PRIVATE)
         )
-        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+        Configuration.getInstance().userAgentValue = BuildConfig.LIBRARY_PACKAGE_NAME
     }
 
     private fun initOsm() = with(binding) {
         pl = Polyline()
-        pl?.outlinePaint?.color = Color.BLACK
+        pl?.outlinePaint?.color = Color.BLUE
         mapView.controller.setZoom(15.0)
+        val notMoving =
+            BitmapFactory.decodeResource(resources, R.drawable.ic_navigation_stop)
+        val moving =
+            BitmapFactory.decodeResource(resources, R.drawable.ic_navigation_move)
         val mLocProvider = GpsMyLocationProvider(activity)
         val mLocOverlay = MyLocationNewOverlay(mLocProvider, mapView)
         mLocOverlay.enableMyLocation()
         mLocOverlay.enableFollowLocation()
+        mLocOverlay.setDirectionArrow(notMoving, moving)
         mLocOverlay.runOnFirstFix {
             mapView.overlays.clear()
             mapView.overlays.add(mLocOverlay)
             mapView.overlays.add(pl)
         }
-
     }
 
     private fun registerPermissions() {
@@ -237,12 +247,14 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, locFilter)
     }
 
-    private fun addPoint(list: List<GeoPoint>) {
+    private fun addPoints(list: List<GeoPoint>) {
+        Log.d("MyLog", "addPoints $list")
         pl?.addPoint(list[list.size - 1])
 
     }
 
     private fun fillPolyline(list: List<GeoPoint>) {
+        Log.d("MyLog", " fillPolyline   $list")
         list.forEach { pl?.addPoint(it) }
     }
 
@@ -251,16 +263,30 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
             fillPolyline(list)
             isFirstStar = false
         } else {
-            addPoint(list)
+            addPoints(list)
         }
     }
 
     private fun averageSpeed(distance: Float): String {
-        return String.format(
-            "%.1f",
-            3.6f * (distance / (System.currentTimeMillis() - viewModel.startTime))
-        )
+        val time = System.currentTimeMillis() - startTime
+        return String.format("%.1f", 3.6f * (distance / time))
     }
+
+    private fun startTimer() {
+        timer?.cancel()
+        timer = Timer()
+        startTime = LocationService.startTime
+        timer?.schedule(object : TimerTask() {
+            override fun run() {
+                activity?.runOnUiThread {
+                    timeData.value = getCurrentTime()
+                }
+            }
+
+        }, 1000, 1000)
+    }
+
+    private fun getCurrentTime() = TimeUtils.getTime(System.currentTimeMillis() - startTime)
 
 
     companion object {

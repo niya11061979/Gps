@@ -10,28 +10,8 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeViewModel : ViewModel() {
-    var startTime = 0L
-    var timer: Timer? = null
+
     val locationUpdatesMD = MutableLiveData<LocationModel>()
-    val timeDataMD = MutableLiveData<String>()
     val locationUpdatesLD: LiveData<LocationModel>
         get() = locationUpdatesMD
-    val timeDataLD: LiveData<String>
-        get() = timeDataMD
-
-
-    fun startTimer(activity: FragmentActivity?) {
-        timer?.cancel()
-        timer = Timer()
-        startTime = LocationService.startTime
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                activity?.runOnUiThread { timeDataMD.value = getCurrentTime() }
-            }
-
-        }, 1000, 1000)
-    }
-
-    private fun getCurrentTime() = TimeUtils.getTime(System.currentTimeMillis() - startTime)
-
 }
