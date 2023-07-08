@@ -7,11 +7,11 @@
     <string name="location">Местоположение</string>
     <string name="tracks">Маршрут</string>
     <string name="update_time">Время обновления</string>
-    <string name="update_time_summary">Время обновление пути</string>
-    <string name="color_track">Цвет прорисовки пути</string>
-    <string name="color_summary">Выбрать цвет прорисовки пути.</string>
-    <string name="dialog_title">Включение GPS</string>
-    <string name="dialog_message">Вы хотите вкючить GPS</string>
+    <string name="update_time_summary">Время обновление маршрута</string>
+    <string name="color_track">Цвет линии маршрута.</string>
+    <string name="color_summary">Выбрать цвет линии маршрута.</string>
+    <string name="dialog_title">Включить GPS</string>
+    <string name="dialog_message">Вы хотите вкючить GPS?</string>
 
 
     <string name="zoom_out">-</string>
@@ -22,4 +22,6 @@
     <string name="center">center</string>
     <string name="aSpeed_text">Средняя скорость:</string>
     <string name="distance_text">Расстояние:</string>
+    <string name="save_track">Сохранить этот маршрут?</string>
+    <string name="save">сохранить</string>
 </resources>

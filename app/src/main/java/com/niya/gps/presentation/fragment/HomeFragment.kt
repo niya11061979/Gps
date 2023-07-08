@@ -44,6 +44,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
     private var pl: Polyline? = null
     private var isFirstStar = true
     val timeData = MutableLiveData<String>()
+    private lateinit var mLocOverlay: MyLocationNewOverlay
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,10 +120,14 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
                 R.id.startStopFA -> startStopService()
                 R.id.zoomInButton -> binding.mapView.controller.zoomIn()
                 R.id.zoomOutButton -> binding.mapView.controller.zoomOut()
-                R.id.centerFA -> {
-                }
+                R.id.centerFA -> centerLocation()
             }
         }
+    }
+
+    private fun centerLocation() {
+        binding.mapView.controller.animateTo(mLocOverlay.myLocation)
+        mLocOverlay.enableFollowLocation()
     }
 
     private fun startStopService() {
@@ -165,7 +170,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         val moving =
             BitmapFactory.decodeResource(resources, R.drawable.ic_navigation_move)
         val mLocProvider = GpsMyLocationProvider(activity)
-        val mLocOverlay = MyLocationNewOverlay(mLocProvider, mapView)
+        mLocOverlay = MyLocationNewOverlay(mLocProvider, mapView)
         mLocOverlay.enableMyLocation()
         mLocOverlay.enableFollowLocation()
         mLocOverlay.setDirectionArrow(notMoving, moving)

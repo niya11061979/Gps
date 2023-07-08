@@ -11,7 +11,6 @@ import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -96,8 +95,8 @@ class LocationService : Service() {
     }
 
     private fun initLocation() {
-        locRequest = LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, 5000).apply {
-            setMinUpdateIntervalMillis(5000)
+        locRequest = LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, 3000).apply {
+            setMinUpdateIntervalMillis(3000)
         }.build()
 
         locProvider = LocationServices.getFusedLocationProviderClient(baseContext)
