@@ -20,12 +20,14 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import com.niya.gps.R
 import com.niya.gps.data.LocationModel
 import com.niya.gps.data.LocationService
 import com.niya.gps.data.LocationService.Companion.LOC_MODEL_INTENT
 import com.niya.gps.data.TimeUtils
 import com.niya.gps.databinding.FragmentHomeBinding
+import com.niya.gps.presentation.fragment.SettingsFragment.Companion.COLOR_KEY
 import com.niya.gps.presentation.model.HomeViewModel
 import com.niya.gps.utils.*
 import org.osmdroid.config.Configuration
@@ -38,6 +40,7 @@ import java.util.*
 
 
 class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
+    private var locationModel: LocationModel? = null
     var startTime = 0L
     var timer: Timer? = null
     private var isServiceRunning = false
@@ -55,8 +58,8 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setOnClicks()
         registerPermissions()
+        setOnClicks()
         checkServiceState()
         updateTime()
         registerLocReceiver()
@@ -84,6 +87,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
             speedTV.text = speed
             distanceTV.text = distance
             averageSpeedTV.text = aSpeed
+            locationModel = it
             updatePolyline(it.geoPointList)
         }
     }
@@ -118,15 +122,15 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         return OnClickListener {
             when (it.id) {
                 R.id.startStopFA -> startStopService()
-                R.id.zoomInButton -> binding.mapView.controller.zoomIn()
-                R.id.zoomOutButton -> binding.mapView.controller.zoomOut()
+                R.id.zoomInButton -> binding.map.controller.zoomIn()
+                R.id.zoomOutButton -> binding.map.controller.zoomOut()
                 R.id.centerFA -> centerLocation()
             }
         }
     }
 
     private fun centerLocation() {
-        binding.mapView.controller.animateTo(mLocOverlay.myLocation)
+        binding.map.controller.animateTo(mLocOverlay.myLocation)
         mLocOverlay.enableFollowLocation()
     }
 
@@ -163,21 +167,24 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
 
     private fun initOsm() = with(binding) {
         pl = Polyline()
-        pl?.outlinePaint?.color = Color.BLUE
-        mapView.controller.setZoom(15.0)
+        pl?.outlinePaint?.color = Color.parseColor(
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getString(COLOR_KEY, "#FF009EDA")
+        )
+        map.controller.setZoom(15.0)
         val notMoving =
             BitmapFactory.decodeResource(resources, R.drawable.ic_navigation_stop)
         val moving =
             BitmapFactory.decodeResource(resources, R.drawable.ic_navigation_move)
         val mLocProvider = GpsMyLocationProvider(activity)
-        mLocOverlay = MyLocationNewOverlay(mLocProvider, mapView)
+        mLocOverlay = MyLocationNewOverlay(mLocProvider, map)
         mLocOverlay.enableMyLocation()
         mLocOverlay.enableFollowLocation()
         mLocOverlay.setDirectionArrow(notMoving, moving)
         mLocOverlay.runOnFirstFix {
-            mapView.overlays.clear()
-            mapView.overlays.add(mLocOverlay)
-            mapView.overlays.add(pl)
+            map.overlays.clear()
+            map.overlays.add(mLocOverlay)
+            map.overlays.add(pl)
         }
     }
 
@@ -252,15 +259,14 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, locFilter)
     }
 
-    private fun addPoints(list: List<GeoPoint>) {
-        Log.d("MyLog", "addPoints $list")
-        pl?.addPoint(list[list.size - 1])
-
+    private fun addPoint(list: List<GeoPoint>) {
+        if (list.isNotEmpty()) pl?.addPoint(list[list.size - 1])
     }
 
     private fun fillPolyline(list: List<GeoPoint>) {
-        Log.d("MyLog", " fillPolyline   $list")
-        list.forEach { pl?.addPoint(it) }
+        list.forEach {
+            pl?.addPoint(it)
+        }
     }
 
     private fun updatePolyline(list: List<GeoPoint>) {
@@ -268,7 +274,7 @@ class HomeFragment : ViewBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
             fillPolyline(list)
             isFirstStar = false
         } else {
-            addPoints(list)
+            addPoint(list)
         }
     }
 

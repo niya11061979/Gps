@@ -11,13 +11,18 @@ import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import com.google.android.gms.location.*
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.niya.gps.R
 import com.niya.gps.presentation.MainActivity
+import com.niya.gps.presentation.fragment.SettingsFragment
+import com.niya.gps.presentation.fragment.SettingsFragment.Companion.UPDATE_TIME_KEY
 import org.osmdroid.util.GeoPoint
 
 
@@ -95,9 +100,14 @@ class LocationService : Service() {
     }
 
     private fun initLocation() {
-        locRequest = LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, 3000).apply {
-            setMinUpdateIntervalMillis(3000)
-        }.build()
+        val interval = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(UPDATE_TIME_KEY, "3000")
+        Log.d("MyLog", " interval =$interval")
+        if (interval != null) {
+            locRequest = LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, interval.toLong()).apply {
+                setMinUpdateIntervalMillis(interval.toLong())
+            }.build()
+        }
 
         locProvider = LocationServices.getFusedLocationProviderClient(baseContext)
 

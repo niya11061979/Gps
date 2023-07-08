@@ -42,7 +42,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val valueArray = resources.getStringArray(R.array.time_update_value)
         val title = timePref.title.toString().substringBefore(":")
         timePref.title = "$title: ${nameArray[valueArray.indexOf(value)]}"
-
     }
 
     private fun onChangeListener(): OnPreferenceChangeListener {
@@ -54,7 +53,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
     }
-
 
     companion object {
         const val UPDATE_TIME_KEY = "update_time_key"
